@@ -11,10 +11,6 @@ You can get the package using any of these ways.
 
 ### Install via npm
 
-```shell
-npm i --save-dev @editorjs/attaches
-```
-
 Include module at your application
 
 ```javascript
@@ -22,22 +18,11 @@ const AttachesTool = require('@editorjs/attaches');
 ```
 
 
-### Download to your project's source dir
-
-1. Upload folder `dist` from repository
-2. Add `dist/bundle.js` file to your page.
-
-### Load from CDN
-
-You can load specific version of package from [jsDelivr CDN](https://www.jsdelivr.com/package/npm/@editorjs/attaches).
-
-`https://cdn.jsdelivr.net/npm/@editorjs/attaches@1.0.0`
-
-Then require this script on page with Editor.js through the `<script src=""></script>` tag.
 
 ## Usage
 
 Add a new Tool to the `tools` property of the Editor.js initial config.
+需要传入自定义处理uploader方法，作为回调函数；可以设置附件的最大值，默认100Mb
 
 ```javascript
 var editor = EditorJS({
@@ -48,8 +33,26 @@ var editor = EditorJS({
     attaches: {
       class: AttachesTool,
       config: {
-        endpoint: 'http://localhost:8008/uploadFile'
-      }
+        uploader: async function (file) {
+        
+          const formData = new FormData();
+          formData.append('attachment', file);
+          const res = await request.createFileUpload(formData);
+          const filenameArray = file.name.split('.');
+          const extenstion = filenameArray[filenameArray.length-1];
+          return {
+            success: 1,
+            file: {
+              url: process.env.VUE_APP_DOMAIN + request.requestURL.getFile + res.data.payload.path,
+              name: res.data.payload.file_name,
+              size: file.size,
+              type: file.type,
+              extenstion,
+            }
+          };
+      },
+      maxSize:100,
+    }
     }
   }
 
@@ -68,6 +71,7 @@ Attaches Tool supports these configuration parameters:
 | types | `string` | (default: `*`) Mime-types of files that can be [accepted with file selection](https://github.com/codex-team/ajax#accept-string).|
 | buttonText | `string` | (default: `Select file`) Placeholder for file upload button |
 | errorMessage | `string` | (default: `File upload failed`) Message to show if file upload failed |
+| uploader | `async function` | upload function |
 
 
 ## Output data
