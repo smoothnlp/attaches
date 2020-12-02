@@ -66,9 +66,10 @@ export default class AttachesTool {
     data,
     config,
     api,
+    readOnly,
   }) {
     this.api = api;
-
+    this.readOnly = readOnly;
     this.nodes = {
       wrapper: null,
       button: null,
@@ -103,6 +104,15 @@ export default class AttachesTool {
     this.enableFileUpload = this.enableFileUpload.bind(this);
   }
 
+  /**
+   * Notify core that read-only mode is supported
+   *
+   * @returns {boolean}
+   */
+  static get isReadOnlySupported() {
+    return true;
+  }
+  
   /**
    * Get Tool toolbox settings
    * icon - Tool icon's SVG
